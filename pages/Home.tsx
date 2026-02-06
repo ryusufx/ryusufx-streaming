@@ -21,9 +21,9 @@ export const Home: React.FC = () => {
 
       const cats = [
         { title: 'Film Indonesia Terbaru', action: CategoryAction.INDONESIAN_MOVIES },
-        { title: 'Film Barat', action: CategoryAction.WESTERN_MOVIES },
-        { title: 'Anime Series', action: CategoryAction.ANIME },
         { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
+        { title: 'Serial TV Barat', action: CategoryAction.WESTERN_TV },
+        { title: 'Anime Series', action: CategoryAction.ANIME },
       ];
 
       const catResults = await Promise.all(
