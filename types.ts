@@ -47,7 +47,7 @@ export enum CategoryAction {
   INDONESIAN_MOVIES = 'indonesian-movies',
   INDONESIAN_DRAMA = 'indonesian-drama',
   ADULT_COMEDY = 'adult-comedy',
-  WESTERN_MOVIES = 'hollywood-movies',
+  HOLLYWOOD_MOVIES = 'hollywood-movies',
   KDRAMA = 'kdrama',
   SHORT_TV = 'short-tv',
   ANIME = 'anime'

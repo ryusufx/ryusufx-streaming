@@ -6,7 +6,14 @@ const BASE_URL = 'https://zeldvorik.ru/apiv3/api.php';
 export const movieApi = {
   fetchCategory: async (action: string, page: number = 1): Promise<ApiResponse> => {
     try {
-      const response = await fetch(`${BASE_URL}?action=${action}&page=${page}`);
+      let url = `${BASE_URL}?action=${action}&page=${page}`;
+      
+      // Jika action adalah hollywood-movies, gunakan endpoint search sesuai permintaan
+      if (action === 'hollywood-movies') {
+        url = `${BASE_URL}?action=search&q=hollywood&page=${page}`;
+      }
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
       return await response.json();
     } catch (error) {
@@ -49,7 +56,6 @@ export const movieApi = {
             if (rawSeasons.length > 0 && (rawSeasons[0].episodes || rawSeasons[0].seasonName)) {
               // Standard season structure
               normalizedSeasons = rawSeasons.map((s: any, index: number) => ({
-                // Gunakan index + 1 jika seasonName tidak disediakan oleh API
                 seasonName: s.seasonName || s.name || `Season ${index + 1}`,
                 episodes: (s.episodes || []).map((e: any) => ({
                   title: e.title || e.name || 'Episode',

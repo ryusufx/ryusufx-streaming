@@ -22,7 +22,7 @@ export const Home: React.FC = () => {
       const cats = [
         { title: 'Film Indonesia Terbaru', action: CategoryAction.INDONESIAN_MOVIES },
         { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
-        { title: 'Serial TV Barat', action: CategoryAction.WESTERN_TV },
+        { title: 'Film Barat Terpopuler', action: CategoryAction.HOLLYWOOD_MOVIES },
         { title: 'Anime Series', action: CategoryAction.ANIME },
       ];
 
@@ -108,7 +108,6 @@ export const Home: React.FC = () => {
                     <span className="text-gray-400 italic line-clamp-1">{movie.genre}</span>
                   </div>
                   
-                  {/* Container Tombol yang Diperbaiki */}
                   <div className="flex flex-wrap items-center gap-3 md:gap-4">
                     <Link 
                       to={`/detail/${movie.detailPath}`}
@@ -131,7 +130,6 @@ export const Home: React.FC = () => {
           );
         })}
 
-        {/* Indikator Slider */}
         <div className="absolute bottom-6 right-6 md:right-12 z-30 flex gap-2">
           {trending.slice(0, 5).map((_, i) => (
             <button 
@@ -143,7 +141,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Categories Content */}
       <div className="max-w-7xl mx-auto px-4 -mt-10 md:-mt-20 relative z-30 space-y-16">
         {categories.map((cat) => (
           <section key={cat.action} className="space-y-6">

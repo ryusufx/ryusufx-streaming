@@ -22,22 +22,28 @@ const App: React.FC = () => {
           </Routes>
         </main>
         
-        <footer className="bg-[#090b13] py-12 border-t border-gray-800">
+        <footer className="bg-[#090b13] py-16 border-t border-white/5">
           <div className="max-w-7xl mx-auto px-4 text-center">
-            <div className="text-2xl font-black tracking-tighter text-white mb-6">
-              <span className="text-blue-500">ryusufx</span> streaming
+            <div className="flex justify-center items-center gap-2 mb-10">
+              <span className="text-2xl md:text-3xl font-black tracking-tighter text-blue-500">ryusufx</span>
+              <span className="text-2xl md:text-3xl font-black tracking-tighter text-white uppercase italic">streaming</span>
             </div>
-            <div className="flex justify-center gap-6 text-sm text-gray-400 mb-8 font-bold uppercase tracking-widest">
+            
+            <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 text-[10px] md:text-xs text-gray-400 mb-10 font-black uppercase tracking-[0.2em]">
               <a href="#" className="hover:text-white transition-all">Tentang Kami</a>
               <a href="#" className="hover:text-white transition-all">Kebijakan Privasi</a>
               <a href="#" className="hover:text-white transition-all">Hubungi Kami</a>
+              <a href="#" className="hover:text-white transition-all">DMCA</a>
             </div>
-            <p className="text-xs text-gray-500 max-w-xl mx-auto leading-relaxed">
-              ryusufx streaming adalah platform gratis untuk berbagi konten video. Kami tidak menyimpan file apapun di server kami. Semua konten disediakan oleh pihak ketiga yang tidak berafiliasi.
-            </p>
-            <p className="mt-8 text-[10px] text-gray-600">
-              © 2026 ryusufx streaming. All rights reserved.
-            </p>
+
+            <div className="max-w-2xl mx-auto space-y-4">
+              <p className="text-[10px] text-gray-600 leading-relaxed uppercase tracking-tighter">
+                ryusufx streaming adalah platform gratis untuk berbagi konten video. Kami tidak menyimpan file apapun di server kami. Semua konten disediakan oleh pihak ketiga yang tidak berafiliasi.
+              </p>
+              <p className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">
+                © 2026 ryusufx streaming. All rights reserved.
+              </p>
+            </div>
           </div>
         </footer>
       </div>
