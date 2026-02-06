@@ -6,14 +6,7 @@ const BASE_URL = 'https://zeldvorik.ru/apiv3/api.php';
 export const movieApi = {
   fetchCategory: async (action: string, page: number = 1): Promise<ApiResponse> => {
     try {
-      let url = `${BASE_URL}?action=${action}&page=${page}`;
-      
-      // Override khusus untuk Film Barat sesuai instruksi user
-      if (action === 'hollywood-movies') {
-        url = `${BASE_URL}?action=search&q=hollywood-movies&page=${page}`;
-      }
-
-      const response = await fetch(url);
+      const response = await fetch(`${BASE_URL}?action=${action}&page=${page}`);
       if (!response.ok) throw new Error('Network response was not ok');
       return await response.json();
     } catch (error) {
@@ -53,21 +46,22 @@ export const movieApi = {
           let normalizedSeasons: Season[] = [];
 
           if (Array.isArray(rawSeasons)) {
-            if (rawSeasons.length > 0 && rawSeasons[0].episodes) {
+            if (rawSeasons.length > 0 && (rawSeasons[0].episodes || rawSeasons[0].seasonName)) {
               // Standard season structure
-              normalizedSeasons = rawSeasons.map((s: any) => ({
-                seasonName: s.seasonName || s.name || `Season ${normalizedSeasons.length + 1}`,
+              normalizedSeasons = rawSeasons.map((s: any, index: number) => ({
+                // Gunakan index + 1 jika seasonName tidak disediakan oleh API
+                seasonName: s.seasonName || s.name || `Season ${index + 1}`,
                 episodes: (s.episodes || []).map((e: any) => ({
                   title: e.title || e.name || 'Episode',
                   url: e.url || e.embed_url || e.player_url || e.playerUrl || ''
                 }))
               }));
             } else {
-              // Flat episode list
+              // Flat episode list (Single Season)
               normalizedSeasons = [{
-                seasonName: 'Daftar Episode',
-                episodes: rawSeasons.map((e: any) => ({
-                  title: e.title || e.name || `Episode ${rawSeasons.indexOf(e) + 1}`,
+                seasonName: 'Season 1',
+                episodes: rawSeasons.map((e: any, index: number) => ({
+                  title: e.title || e.name || `Episode ${index + 1}`,
                   url: e.url || e.embed_url || e.player_url || e.playerUrl || ''
                 }))
               }];
@@ -82,7 +76,7 @@ export const movieApi = {
             genre: item.genre || item.genres || '',
             description: item.description || item.synopsis || item.overview || '',
             playerUrl: item.playerUrl || item.embed_url || item.video_url || '',
-            type: item.type || (normalizedSeasons.length > 0 ? 'tv' : 'movie'),
+            type: item.type || (normalizedSeasons.length > 1 || (normalizedSeasons.length === 1 && normalizedSeasons[0].episodes.length > 1) ? 'tv' : 'movie'),
             seasons: normalizedSeasons,
             director: item.director || '',
             cast: item.cast || item.actors || ''
