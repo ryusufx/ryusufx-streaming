@@ -6,7 +6,14 @@ const BASE_URL = 'https://zeldvorik.ru/apiv3/api.php';
 export const movieApi = {
   fetchCategory: async (action: string, page: number = 1): Promise<ApiResponse> => {
     try {
-      const response = await fetch(`${BASE_URL}?action=${action}&page=${page}`);
+      let url = `${BASE_URL}?action=${action}&page=${page}`;
+      
+      // Override khusus untuk Film Barat sesuai instruksi user
+      if (action === 'hollywood-movies') {
+        url = `${BASE_URL}?action=search&q=hollywood-movies&page=${page}`;
+      }
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
       return await response.json();
     } catch (error) {

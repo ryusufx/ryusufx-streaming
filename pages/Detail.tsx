@@ -35,7 +35,7 @@ export const Detail: React.FC = () => {
         const res = await movieApi.getDetail(decodedPath);
         if (res) {
           setDetail(res);
-          // Auto-select first available video source
+          // Auto-select video source
           if (res.playerUrl) {
              setActiveUrl(res.playerUrl);
           } else if (res.seasons && res.seasons.length > 0 && res.seasons[0].episodes.length > 0) {
@@ -53,7 +53,14 @@ export const Detail: React.FC = () => {
     window.scrollTo(0, 0);
   }, [detailPath]);
 
-  // Handle switching episodes
+  // Logika untuk menentukan apakah ini serial dengan banyak episode
+  const isMultiEpisode = useMemo(() => {
+    if (!detail) return false;
+    // Dianggap serial jika type-nya 'tv' DAN punya lebih dari 1 episode total
+    const totalEpisodes = detail.seasons?.reduce((acc, s) => acc + s.episodes.length, 0) || 0;
+    return detail.type === 'tv' && totalEpisodes > 1;
+  }, [detail]);
+
   const handleSelectEpisode = (url: string) => {
     if (!url) {
       alert("Maaf, link video untuk episode ini tidak tersedia.");
@@ -130,8 +137,6 @@ export const Detail: React.FC = () => {
     );
   }
 
-  const isTV = detail.type === 'tv' || (detail.seasons && detail.seasons.length > 0);
-
   return (
     <div className="pt-16 pb-20">
       {/* Hero Header */}
@@ -149,7 +154,7 @@ export const Detail: React.FC = () => {
           <div className="flex-1 space-y-4 text-center md:text-left">
             <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-2">
               <span className="bg-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">
-                {isTV ? 'TV Series' : 'Movie'}
+                {isMultiEpisode ? 'TV Series' : 'Movie'}
               </span>
               {detail.genre && typeof detail.genre === 'string' && detail.genre.split(',').map((g) => (
                 <span key={g} className="bg-white/10 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
@@ -172,9 +177,11 @@ export const Detail: React.FC = () => {
                 className="bg-white text-black px-8 py-3.5 rounded-xl font-black transition-all hover:bg-blue-500 hover:text-white flex items-center gap-2 active:scale-95"
               >
                 <i className="fas fa-play"></i> 
-                {isTV ? 'Mulai Episode 1' : 'Tonton Sekarang'}
+                {isMultiEpisode ? 'Mulai Episode 1' : 'Tonton Sekarang'}
               </button>
-              {isTV && (
+              
+              {/* Hanya tampilkan tombol navigasi episode jika ini serial */}
+              {isMultiEpisode && (
                 <button 
                   onClick={handleLastEpisode}
                   className="bg-white/10 text-white px-8 py-3.5 rounded-xl font-black transition-all hover:bg-white/20 flex items-center gap-2 active:scale-95"
@@ -197,7 +204,7 @@ export const Detail: React.FC = () => {
             <div className="bg-black rounded-3xl overflow-hidden shadow-2xl aspect-video relative border border-white/5">
               {activeUrl ? (
                 <iframe 
-                  key={activeUrl} // KEY IS CRITICAL: Forces iframe to completely refresh when URL changes
+                  key={activeUrl}
                   src={activeUrl}
                   className="w-full h-full"
                   allowFullScreen
@@ -208,7 +215,7 @@ export const Detail: React.FC = () => {
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-gray-500">
                   <i className="fas fa-video-slash text-5xl opacity-20"></i>
-                  <p className="font-bold">Pilih episode untuk memutar video</p>
+                  <p className="font-bold">Pilih video untuk memutar</p>
                 </div>
               )}
             </div>
@@ -240,10 +247,10 @@ export const Detail: React.FC = () => {
           </section>
         </div>
 
-        {/* Sidebar - Episode List */}
+        {/* Sidebar - Hanya tampilkan Episode List jika ini serial */}
         <aside className="space-y-6">
-          {isTV && detail.seasons && detail.seasons.length > 0 ? (
-            <div className="bg-[#1a1d29] rounded-3xl p-6 border border-white/5 sticky top-24">
+          {isMultiEpisode ? (
+            <div className="bg-[#1a1d29] rounded-3xl p-6 border border-white/5 sticky top-24 shadow-xl">
               <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
                 <i className="fas fa-list text-blue-500"></i> Daftar Episode
               </h3>
@@ -252,7 +259,7 @@ export const Detail: React.FC = () => {
                 <input 
                   type="text" 
                   placeholder="Cari episode..."
-                  className="w-full bg-[#090b13] border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[#090b13] border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all text-white"
                   value={episodeSearch}
                   onChange={(e) => setEpisodeSearch(e.target.value)}
                 />
@@ -290,12 +297,27 @@ export const Detail: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-[#1a1d29] rounded-3xl p-8 border border-white/5 text-center space-y-4">
-              <i className="fas fa-film text-3xl text-blue-500 opacity-50"></i>
-              <h3 className="font-bold text-white">Format Film</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Konten ini tersedia dalam satu video utuh (Movie).
-              </p>
+            /* Tampilan Sidebar untuk Film Tunggal */
+            <div className="bg-[#1a1d29] rounded-3xl p-8 border border-white/5 text-center space-y-6 shadow-xl sticky top-24">
+              <div className="w-20 h-20 bg-blue-600/10 rounded-3xl flex items-center justify-center text-blue-500 text-4xl mx-auto border border-blue-500/20">
+                <i className="fas fa-film"></i>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-black text-white text-lg">Format Film</h3>
+                <p className="text-sm text-gray-400 leading-relaxed px-2">
+                  Konten ini adalah film berdurasi penuh (Single Movie). Selamat menikmati tontonan Anda!
+                </p>
+              </div>
+              <div className="pt-6 border-t border-white/5 flex flex-col gap-4">
+                 <div className="flex items-center justify-between text-xs font-bold text-gray-500 px-2">
+                    <span>Kualitas</span>
+                    <span className="text-green-500">HD / 4K</span>
+                 </div>
+                 <div className="flex items-center justify-between text-xs font-bold text-gray-500 px-2">
+                    <span>Bahasa</span>
+                    <span className="text-white">Sub Indo</span>
+                 </div>
+              </div>
             </div>
           )}
         </aside>

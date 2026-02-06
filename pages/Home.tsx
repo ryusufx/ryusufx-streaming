@@ -21,9 +21,9 @@ export const Home: React.FC = () => {
 
       const cats = [
         { title: 'Film Indonesia Terbaru', action: CategoryAction.INDONESIAN_MOVIES },
-        { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
-        { title: 'Serial TV Barat', action: CategoryAction.WESTERN_TV },
+        { title: 'Film Barat', action: CategoryAction.WESTERN_MOVIES },
         { title: 'Anime Series', action: CategoryAction.ANIME },
+        { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
       ];
 
       const catResults = await Promise.all(
@@ -60,74 +60,105 @@ export const Home: React.FC = () => {
     );
   }
 
-  const currentHero = trending[activeHero];
-
   return (
     <div className="pb-20">
       {/* Hero Slider */}
-      <section className="relative h-[60vh] md:h-[85vh] w-full overflow-hidden">
-        {trending.slice(0, 5).map((movie, idx) => (
-          <div 
-            key={movie.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === activeHero ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#090b13] via-transparent to-transparent z-10 md:w-1/2"></div>
-            <div className="absolute inset-0 hero-gradient z-10"></div>
-            <img 
-              src={movie.poster} 
-              alt={movie.title} 
-              className="w-full h-full object-cover object-top md:object-center"
-            />
-            <div className="absolute bottom-10 left-4 md:left-12 z-20 max-w-2xl">
-              <span className="bg-blue-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded uppercase tracking-widest mb-4 inline-block">
-                Trending Now
-              </span>
-              <h1 className="text-3xl md:text-6xl font-black text-white mb-2 md:mb-4 leading-tight drop-shadow-lg">
-                {movie.title}
-              </h1>
-              <div className="flex items-center gap-4 text-gray-300 text-sm mb-6">
-                <span className="flex items-center gap-1 text-yellow-400 font-bold">
-                  <i className="fas fa-star"></i> {movie.rating}
-                </span>
-                <span>{movie.year}</span>
-                <span className="px-2 border border-gray-500 rounded text-[10px] uppercase">{movie.type}</span>
-                <span>{movie.genre}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Link 
-                  to={`/detail/${encodeURIComponent(movie.detailPath)}`}
-                  className="bg-white text-black px-6 md:px-10 py-3 rounded font-bold hover:bg-gray-200 transition-all flex items-center gap-2"
-                >
-                  <i className="fas fa-play"></i> TONTON SEKARANG
-                </Link>
-                <Link 
-                  to={`/detail/${encodeURIComponent(movie.detailPath)}`}
-                  className="bg-gray-800/80 backdrop-blur-md text-white px-6 md:px-10 py-3 rounded font-bold hover:bg-gray-700 transition-all flex items-center gap-2"
-                >
-                  <i className="fas fa-info-circle"></i> DETAIL
-                </Link>
+      <section className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden bg-[#090b13]">
+        {trending.slice(0, 5).map((movie, idx) => {
+          const isTV = movie.type === 'tv';
+          return (
+            <div 
+              key={movie.id}
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out transform ${
+                idx === activeHero 
+                  ? 'opacity-100 z-20 visible scale-100' 
+                  : 'opacity-0 z-0 invisible scale-105 pointer-events-none'
+              }`}
+            >
+              {/* Gradients Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#090b13] via-[#090b13]/60 to-transparent z-10 md:w-4/5"></div>
+              <div className="absolute inset-0 hero-gradient z-10"></div>
+              
+              <img 
+                src={movie.poster} 
+                alt={movie.title} 
+                className="w-full h-full object-cover object-top md:object-center"
+              />
+              
+              <div className="absolute bottom-16 left-0 right-0 md:bottom-24 md:left-12 z-20 px-4 md:px-0 max-w-3xl">
+                <div className={`transition-all duration-700 delay-300 ${idx === activeHero ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                  <span className="bg-blue-600 text-white text-[10px] md:text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block shadow-lg">
+                    Trending Now
+                  </span>
+                  
+                  <h1 className="text-3xl md:text-6xl font-black text-white mb-3 md:mb-5 leading-[1.1] drop-shadow-2xl line-clamp-2 uppercase">
+                    {movie.title}
+                  </h1>
+                  
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-300 text-xs md:text-sm mb-8 font-bold">
+                    <span className="flex items-center gap-1.5 text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/20">
+                      <i className="fas fa-star text-[10px]"></i> {movie.rating || '0'}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <i className="far fa-calendar-alt text-blue-500"></i> {movie.year}
+                    </span>
+                    <span className="px-2 py-0.5 border border-white/20 rounded text-[10px] uppercase font-black bg-white/5">
+                      {isTV ? 'Series' : 'Movie'}
+                    </span>
+                    <span className="text-gray-400 italic line-clamp-1">{movie.genre}</span>
+                  </div>
+                  
+                  {/* Container Tombol yang Diperbaiki */}
+                  <div className="flex flex-wrap items-center gap-3 md:gap-4">
+                    <Link 
+                      to={`/detail/${movie.detailPath}`}
+                      className="bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded-xl font-black hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2 md:gap-3 shadow-xl active:scale-95 group text-xs md:text-sm"
+                    >
+                      <i className="fas fa-play group-hover:scale-125 transition-transform"></i> 
+                      {isTV ? 'MULAI EPISODE 1' : 'TONTON SEKARANG'}
+                    </Link>
+                    
+                    <Link 
+                      to={`/detail/${movie.detailPath}`}
+                      className="bg-[#1a1d29]/80 backdrop-blur-xl text-white border border-white/10 px-6 md:px-10 py-3 md:py-4 rounded-xl font-black hover:bg-white/20 transition-all flex items-center gap-2 md:gap-3 active:scale-95 text-xs md:text-sm"
+                    >
+                      <i className="fas fa-info-circle"></i> DETAIL
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+
+        {/* Indikator Slider */}
+        <div className="absolute bottom-6 right-6 md:right-12 z-30 flex gap-2">
+          {trending.slice(0, 5).map((_, i) => (
+            <button 
+              key={i}
+              onClick={() => setActiveHero(i)}
+              className={`h-1.5 transition-all duration-500 rounded-full ${i === activeHero ? 'w-8 bg-blue-500' : 'w-2 bg-white/30'}`}
+            ></button>
+          ))}
+        </div>
       </section>
 
-      {/* Categories */}
-      <div className="max-w-7xl mx-auto px-4 -mt-10 md:-mt-20 relative z-30 space-y-12">
+      {/* Categories Content */}
+      <div className="max-w-7xl mx-auto px-4 -mt-10 md:-mt-20 relative z-30 space-y-16">
         {categories.map((cat) => (
-          <section key={cat.action} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl md:text-2xl font-bold flex items-center gap-3">
-                <div className="w-1 h-8 bg-blue-500 rounded"></div>
+          <section key={cat.action} className="space-y-6">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-xl md:text-2xl font-black flex items-center gap-3 text-white tracking-tight">
+                <div className="w-1.5 h-8 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"></div>
                 {cat.title}
               </h2>
-              <Link to={`/category/${cat.action}`} className="text-blue-500 text-sm font-bold hover:underline">
-                Lihat Semua <i className="fas fa-chevron-right text-[10px]"></i>
+              <Link to={`/category/${cat.action}`} className="text-blue-500 text-xs md:text-sm font-black uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2 group">
+                Lihat Semua <i className="fas fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
               {cat.items.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard key={`${movie.id}-${cat.action}`} movie={movie} />
               ))}
             </div>
           </section>

@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
     { name: 'Beranda', path: '/' },
     { name: 'Film Indo', path: '/category/indonesian-movies' },
     { name: 'Series Indo', path: '/category/indonesian-drama' },
-    { name: 'Barat', path: '/category/western-tv' },
+    { name: 'Film Barat', path: '/category/hollywood-movies' },
     { name: 'K-Drama', path: '/category/kdrama' },
     { name: 'Anime', path: '/category/anime' },
   ];

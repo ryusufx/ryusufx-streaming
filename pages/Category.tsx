@@ -10,7 +10,7 @@ const categoryNames: Record<string, string> = {
   'indonesian-movies': 'Film Indonesia',
   'indonesian-drama': 'Serial TV Indonesia',
   'adult-comedy': 'Canda Dewasa',
-  'western-tv': 'Serial TV Barat',
+  'hollywood-movies': 'Film Barat',
   'kdrama': 'K-Drama',
   'short-tv': 'Short TV',
   'anime': 'Anime',

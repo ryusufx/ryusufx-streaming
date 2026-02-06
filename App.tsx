@@ -36,7 +36,7 @@ const App: React.FC = () => {
               ryusufx streaming adalah platform gratis untuk berbagi konten video. Kami tidak menyimpan file apapun di server kami. Semua konten disediakan oleh pihak ketiga yang tidak berafiliasi.
             </p>
             <p className="mt-8 text-[10px] text-gray-600">
-              © 2024 ryusufx streaming. All rights reserved.
+              © 2026 ryusufx streaming. All rights reserved.
             </p>
           </div>
         </footer>
