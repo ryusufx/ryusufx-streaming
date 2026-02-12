@@ -8,9 +8,9 @@ export const movieApi = {
     try {
       let url = `${BASE_URL}?action=${action}&page=${page}`;
       
-      // Jika action adalah hollywood-movies, gunakan endpoint search sesuai permintaan
+      // Jika action adalah hollywood-movies, gunakan endpoint search dengan query yang lebih spesifik
       if (action === 'hollywood-movies') {
-        url = `${BASE_URL}?action=search&q=hollywood&page=${page}`;
+        url = `${BASE_URL}?action=search&q=hollywood%20movies&page=${page}`;
       }
 
       const response = await fetch(url);
