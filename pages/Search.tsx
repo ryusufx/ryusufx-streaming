@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { movieApi } from '../services/api';
+import { trackingService } from '../services/trackingService';
 import { MovieItem } from '../types';
 import { MovieCard } from '../components/MovieCard';
 import { MovieSkeleton } from '../components/Skeleton';
@@ -19,6 +20,9 @@ export const Search: React.FC = () => {
       const res = await movieApi.search(query);
       setMovies(res.items);
       setLoading(false);
+      
+      // TRACK: Search query
+      trackingService.logSearch(query);
     };
 
     doSearch();

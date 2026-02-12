@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { movieApi } from '../services/api';
+import { trackingService } from '../services/trackingService';
 import { MovieItem, CategoryAction } from '../types';
 import { MovieCard } from '../components/MovieCard';
 import { MovieSkeleton, HeroSkeleton } from '../components/Skeleton';
@@ -16,25 +17,33 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const trendingRes = await movieApi.fetchCategory(CategoryAction.TRENDING);
-      setTrending(trendingRes.items.slice(0, 10));
+      try {
+        const trendingRes = await movieApi.fetchCategory(CategoryAction.TRENDING);
+        setTrending(trendingRes.items.slice(0, 10));
 
-      const cats = [
-        { title: 'Film Indonesia Terbaru', action: CategoryAction.INDONESIAN_MOVIES },
-        { title: 'Film Barat Terpopuler', action: CategoryAction.HOLLYWOOD_MOVIES },
-        { title: 'Anime Series', action: CategoryAction.ANIME },
-        { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
-      ];
+        const cats = [
+          { title: 'Film Indonesia Terbaru', action: CategoryAction.INDONESIAN_MOVIES },
+          { title: 'Film Barat Terpopuler', action: CategoryAction.HOLLYWOOD_MOVIES },
+          { title: 'Anime Series', action: CategoryAction.ANIME },
+          { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
+        ];
 
-      const catResults = await Promise.all(
-        cats.map(async (cat) => {
-          const res = await movieApi.fetchCategory(cat.action);
-          return { ...cat, items: res.items.slice(0, 8) };
-        })
-      );
+        const catResults = await Promise.all(
+          cats.map(async (cat) => {
+            const res = await movieApi.fetchCategory(cat.action);
+            return { ...cat, items: res.items.slice(0, 8) };
+          })
+        );
 
-      setCategories(catResults);
-      setLoading(false);
+        setCategories(catResults);
+        
+        // TRACK: Home Page View
+        trackingService.logPageView('Home Page');
+      } catch (e) {
+        console.error("Home fetch error", e);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -62,7 +71,6 @@ export const Home: React.FC = () => {
 
   return (
     <div className="pb-20">
-      {/* Hero Slider */}
       <section className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden bg-[#090b13]">
         {trending.slice(0, 5).map((movie, idx) => {
           const isTV = movie.type === 'tv';
@@ -75,7 +83,6 @@ export const Home: React.FC = () => {
                   : 'opacity-0 z-0 invisible scale-105 pointer-events-none'
               }`}
             >
-              {/* Gradients Overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-[#090b13] via-[#090b13]/60 to-transparent z-10 md:w-4/5"></div>
               <div className="absolute inset-0 hero-gradient z-10"></div>
               
@@ -105,7 +112,6 @@ export const Home: React.FC = () => {
                     <span className="px-2 py-0.5 border border-white/20 rounded text-[10px] uppercase font-black bg-white/5">
                       {isTV ? 'Series' : 'Movie'}
                     </span>
-                    <span className="text-gray-400 italic line-clamp-1">{movie.genre}</span>
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-3 md:gap-4">
@@ -115,13 +121,6 @@ export const Home: React.FC = () => {
                     >
                       <i className="fas fa-play group-hover:scale-125 transition-transform"></i> 
                       {isTV ? 'MULAI EPISODE 1' : 'TONTON SEKARANG'}
-                    </Link>
-                    
-                    <Link 
-                      to={`/detail/${movie.detailPath}`}
-                      className="bg-[#1a1d29]/80 backdrop-blur-xl text-white border border-white/10 px-6 md:px-10 py-3 md:py-4 rounded-xl font-black hover:bg-white/20 transition-all flex items-center gap-2 md:gap-3 active:scale-95 text-xs md:text-sm"
-                    >
-                      <i className="fas fa-info-circle"></i> DETAIL
                     </Link>
                   </div>
                 </div>

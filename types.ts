@@ -42,6 +42,17 @@ export interface ApiResponse {
   hasMore: boolean;
 }
 
+export interface VisitorLog {
+  id?: string;
+  timestamp: any; // Firestore Timestamp
+  action: 'PAGE_VIEW' | 'PLAY_MOVIE' | 'SEARCH';
+  contentTitle?: string;
+  path: string;
+  query?: string;
+  userAgent: string;
+  platform: string;
+}
+
 export enum CategoryAction {
   TRENDING = 'trending',
   INDONESIAN_MOVIES = 'indonesian-movies',

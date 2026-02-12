@@ -6,6 +6,7 @@ import { Home } from './pages/Home';
 import { Detail } from './pages/Detail';
 import { Category } from './pages/Category';
 import { Search } from './pages/Search';
+import { Admin } from './pages/Admin';
 
 const App: React.FC = () => {
   return (
@@ -17,8 +18,9 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/category/:action" element={<Category />} />
             <Route path="/search" element={<Search />} />
-            {/* Use wildcard * to capture detail paths that include slashes */}
             <Route path="/detail/*" element={<Detail />} />
+            {/* Route Admin Rahasia */}
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>
         

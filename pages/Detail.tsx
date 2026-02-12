@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { movieApi } from '../services/api';
+import { trackingService } from '../services/trackingService';
 import { MovieDetail, Episode, Season } from '../types';
 
 export const Detail: React.FC = () => {
@@ -41,6 +42,9 @@ export const Detail: React.FC = () => {
           } else if (res.seasons && res.seasons.length > 0 && res.seasons[0].episodes.length > 0) {
              setActiveUrl(res.seasons[0].episodes[0].url);
           }
+
+          // TRACK: Page view with movie title
+          trackingService.logPageView(`Detail: ${res.title}`);
         }
       } catch (err) {
         console.error("Component fetch detail error:", err);
@@ -53,21 +57,24 @@ export const Detail: React.FC = () => {
     window.scrollTo(0, 0);
   }, [detailPath]);
 
-  // Logika untuk menentukan apakah ini serial dengan banyak episode
   const isMultiEpisode = useMemo(() => {
     if (!detail) return false;
-    // Dianggap serial jika type-nya 'tv' DAN punya lebih dari 1 episode total
     const totalEpisodes = detail.seasons?.reduce((acc, s) => acc + s.episodes.length, 0) || 0;
     return detail.type === 'tv' && totalEpisodes > 1;
   }, [detail]);
 
-  const handleSelectEpisode = (url: string) => {
+  const handleSelectEpisode = (url: string, epTitle?: string) => {
     if (!url) {
       alert("Maaf, link video untuk episode ini tidak tersedia.");
       return;
     }
     setActiveUrl(url);
     scrollToPlayer();
+    
+    // TRACK: Play Event
+    if (detail) {
+      trackingService.logPlay(`${detail.title}${epTitle ? ` - ${epTitle}` : ''}`);
+    }
   };
 
   const scrollToPlayer = () => {
@@ -88,7 +95,7 @@ export const Detail: React.FC = () => {
 
   const handleTontonSekarang = () => {
     if (detail?.seasons && detail.seasons.length > 0 && detail.seasons[0].episodes.length > 0) {
-      handleSelectEpisode(detail.seasons[0].episodes[0].url);
+      handleSelectEpisode(detail.seasons[0].episodes[0].url, detail.seasons[0].episodes[0].title);
     } else if (detail?.playerUrl) {
       handleSelectEpisode(detail.playerUrl);
     }
@@ -98,7 +105,8 @@ export const Detail: React.FC = () => {
     if (detail?.seasons && detail.seasons.length > 0) {
       const lastSeason = detail.seasons[detail.seasons.length - 1];
       if (lastSeason.episodes.length > 0) {
-        handleSelectEpisode(lastSeason.episodes[lastSeason.episodes.length - 1].url);
+        const lastEp = lastSeason.episodes[lastSeason.episodes.length - 1];
+        handleSelectEpisode(lastEp.url, lastEp.title);
       }
     }
   };
@@ -139,7 +147,6 @@ export const Detail: React.FC = () => {
 
   return (
     <div className="pt-16 pb-20">
-      {/* Hero Header */}
       <div className="relative h-[60vh] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-[#090b13] via-[#090b13]/80 to-transparent z-10"></div>
         <img 
@@ -180,7 +187,6 @@ export const Detail: React.FC = () => {
                 {isMultiEpisode ? 'Mulai Episode 1' : 'Tonton Sekarang'}
               </button>
               
-              {/* Hanya tampilkan tombol navigasi episode jika ini serial */}
               {isMultiEpisode && (
                 <button 
                   onClick={handleLastEpisode}
@@ -196,7 +202,6 @@ export const Detail: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 mt-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
-          {/* Player Section */}
           <section ref={playerRef} className="space-y-4">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
               <i className="fas fa-play-circle text-blue-500"></i> Video Player
@@ -221,7 +226,6 @@ export const Detail: React.FC = () => {
             </div>
           </section>
 
-          {/* Description */}
           <section className="bg-[#1a1d29] p-8 rounded-3xl border border-white/5 space-y-6">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
               <i className="fas fa-info-circle text-blue-500"></i> Sinopsis
@@ -247,7 +251,6 @@ export const Detail: React.FC = () => {
           </section>
         </div>
 
-        {/* Sidebar - Hanya tampilkan Episode List jika ini serial */}
         <aside className="space-y-6">
           {isMultiEpisode ? (
             <div className="bg-[#1a1d29] rounded-3xl p-6 border border-white/5 sticky top-24 shadow-xl">
@@ -276,7 +279,7 @@ export const Detail: React.FC = () => {
                       {season.episodes.map((ep, eIdx) => (
                         <button 
                           key={eIdx}
-                          onClick={() => handleSelectEpisode(ep.url)}
+                          onClick={() => handleSelectEpisode(ep.url, ep.title)}
                           className={`flex items-center gap-4 p-3 rounded-xl text-left transition-all border group ${activeUrl === ep.url ? 'bg-blue-600 border-blue-400 text-white shadow-lg' : 'bg-black/20 border-white/5 hover:border-white/20 text-gray-400 hover:text-white'}`}
                         >
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-black ${activeUrl === ep.url ? 'bg-white text-blue-600' : 'bg-white/5 text-gray-500'}`}>
@@ -297,7 +300,6 @@ export const Detail: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Tampilan Sidebar untuk Film Tunggal */
             <div className="bg-[#1a1d29] rounded-3xl p-8 border border-white/5 text-center space-y-6 shadow-xl sticky top-24">
               <div className="w-20 h-20 bg-blue-600/10 rounded-3xl flex items-center justify-center text-blue-500 text-4xl mx-auto border border-blue-500/20">
                 <i className="fas fa-film"></i>
@@ -307,16 +309,6 @@ export const Detail: React.FC = () => {
                 <p className="text-sm text-gray-400 leading-relaxed px-2">
                   Konten ini adalah film berdurasi penuh (Single Movie). Selamat menikmati tontonan Anda!
                 </p>
-              </div>
-              <div className="pt-6 border-t border-white/5 flex flex-col gap-4">
-                 <div className="flex items-center justify-between text-xs font-bold text-gray-500 px-2">
-                    <span>Kualitas</span>
-                    <span className="text-green-500">HD / 4K</span>
-                 </div>
-                 <div className="flex items-center justify-between text-xs font-bold text-gray-500 px-2">
-                    <span>Bahasa</span>
-                    <span className="text-white">Sub Indo</span>
-                 </div>
               </div>
             </div>
           )}
