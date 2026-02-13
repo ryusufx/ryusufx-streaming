@@ -18,6 +18,7 @@ export const Home: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Fetch trending dulu untuk hero section
         const trendingRes = await movieApi.fetchCategory(CategoryAction.TRENDING);
         setTrending(trendingRes.items.slice(0, 10));
 
@@ -28,16 +29,17 @@ export const Home: React.FC = () => {
           { title: 'K-Drama Populer', action: CategoryAction.KDRAMA },
         ];
 
-        const catResults = await Promise.all(
-          cats.map(async (cat) => {
-            const res = await movieApi.fetchCategory(cat.action);
-            return { ...cat, items: res.items.slice(0, 8) };
-          })
-        );
+        // Pengambilan data kategori secara berurutan dengan jeda 300ms
+        // Ini mencegah API memblokir request karena dianggap 'burst'
+        const results = [];
+        for (const cat of cats) {
+          const res = await movieApi.fetchCategory(cat.action);
+          results.push({ ...cat, items: res.items.slice(0, 8) });
+          // Beri jeda antar request jika tidak ada di cache
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
 
-        setCategories(catResults);
-        
-        // TRACK: Home Page View
+        setCategories(results);
         trackingService.logPageView('Home Page');
       } catch (e) {
         console.error("Home fetch error", e);
